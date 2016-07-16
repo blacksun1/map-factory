@@ -4,7 +4,7 @@ export default class Mapping implements IMapping {
 
   public source: string | string[];
   public target: string | IKeyDefinition;
-  
+
   constructor(source: string | string[]) {
 
     if (!source) throw new Error("the source field name cannot be null");

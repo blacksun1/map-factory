@@ -4,6 +4,6 @@ export default class Mapper {
     sourceObject: Object;
     constructor(obj: any);
     registerMapping(mapping: IMapping): void;
-    execute(): any;
+    execute(source: any): any;
     private appendMultiSelections(source, target, multiMaps);
 }

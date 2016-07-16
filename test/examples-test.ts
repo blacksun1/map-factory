@@ -31,6 +31,48 @@ const exampleGroup: nodeunit.ITestGroup = {
     test.deepEqual(result, expected);
     test.done();
   },
+
+  "Map two different source objects using the same mapper": function (test: nodeunit.Test): void {
+
+    // Arrange
+    const sources = [
+      {
+        "fieldName": "name1",
+        "fieldId": "123",
+        "fieldDescription": "description"
+      },
+      {
+        "fieldName": "name2",
+        "fieldId": "456",
+        "fieldDescription": "Something else"
+      }
+    ];
+
+    const expected = [
+      {
+        "fieldName": "name1",
+        "fieldId": "123"
+      },
+      {
+        "fieldName": "name2",
+        "fieldId": "456"
+      }
+    ];
+
+    const map = createMapper();
+
+    map("fieldName");
+    map("fieldId");
+
+    // Act
+    const actual = sources.map(source => map.execute(source));
+
+    // Assert
+    test.deepEqual(actual, expected);
+
+    return test.done();
+  },
+
   "Map a source field to a different object structure": function (test: nodeunit.Test): void {
 
     const expected = {
@@ -61,6 +103,7 @@ const exampleGroup: nodeunit.ITestGroup = {
     test.deepEqual(result, expected);
     test.done();
   },
+
   "Supports deep references for source and target objects": function (test: nodeunit.Test): void {
 
     const expected = {
@@ -107,6 +150,7 @@ const exampleGroup: nodeunit.ITestGroup = {
     test.deepEqual(result, expected);
     test.done();
   },
+
   "Supports deep references for source and target objects - 2": function (test: nodeunit.Test): void {
 
     const expected = {
@@ -149,6 +193,7 @@ const exampleGroup: nodeunit.ITestGroup = {
     test.deepEqual(result, expected);
     test.done();
   },
+
   "Supports deep references for source and target objects - 3": function (test: nodeunit.Test): void {
 
     const expected = {
@@ -207,6 +252,7 @@ const exampleGroup: nodeunit.ITestGroup = {
     test.deepEqual(result, expected);
     test.done();
   },
+
   "Multiple selections can be selected at once": function (test: nodeunit.Test): void {
 
     const expected = {

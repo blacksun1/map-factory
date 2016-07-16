@@ -1,7 +1,9 @@
-﻿import * as mod from "object-mapper";
+﻿import * as AssertMod from "assert";
+import * as mod from "object-mapper";
 import {IMapFactory, IMapping, IKeyDefinition} from "./interfaces";
 
 const objectMapper: any = mod;
+const assert: any = AssertMod;
 
 export default class Mapper {
 
@@ -16,10 +18,13 @@ export default class Mapper {
     this.assignment.push(mapping);
   }
 
-  public execute() {
+  public execute(source: any) {
 
     const transform = {};
     const multiMaps = [];
+    const sourceObject = source || this.sourceObject;
+
+    assert(sourceObject, "You need to provide a source either on construction or in the execute")
 
     for (const item of this.assignment) {
 
@@ -40,9 +45,9 @@ export default class Mapper {
 
     }
 
-    const output = objectMapper(this.sourceObject, {}, transform);
+    const output = objectMapper(sourceObject, {}, transform);
 
-    return this.appendMultiSelections(this.sourceObject, output, multiMaps);
+    return this.appendMultiSelections(sourceObject, output, multiMaps);
 
   }
 

@@ -1,6 +1,8 @@
 "use strict";
+var AssertMod = require("assert");
 var mod = require("object-mapper");
 var objectMapper = mod;
+var assert = AssertMod;
 var Mapper = (function () {
     function Mapper(obj) {
         this.assignment = [];
@@ -10,9 +12,11 @@ var Mapper = (function () {
     Mapper.prototype.registerMapping = function (mapping) {
         this.assignment.push(mapping);
     };
-    Mapper.prototype.execute = function () {
+    Mapper.prototype.execute = function (source) {
         var transform = {};
         var multiMaps = [];
+        var sourceObject = source || this.sourceObject;
+        assert(sourceObject, "You need to provide a source either on construction or in the execute");
         for (var _i = 0, _a = this.assignment; _i < _a.length; _i++) {
             var item = _a[_i];
             var sourceKey = item.source;
@@ -28,8 +32,8 @@ var Mapper = (function () {
                 target = sourceKey;
             transform[sourceKey] = target;
         }
-        var output = objectMapper(this.sourceObject, {}, transform);
-        return this.appendMultiSelections(this.sourceObject, output, multiMaps);
+        var output = objectMapper(sourceObject, {}, transform);
+        return this.appendMultiSelections(sourceObject, output, multiMaps);
     };
     Mapper.prototype.appendMultiSelections = function (source, target, multiMaps) {
         var output = target;

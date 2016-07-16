@@ -21,6 +21,39 @@ var exampleGroup = {
         test.deepEqual(result, expected);
         test.done();
     },
+    "Map two different source objects using the same mapper": function (test) {
+        // Arrange
+        var sources = [
+            {
+                "fieldName": "name1",
+                "fieldId": "123",
+                "fieldDescription": "description"
+            },
+            {
+                "fieldName": "name2",
+                "fieldId": "456",
+                "fieldDescription": "Something else"
+            }
+        ];
+        var expected = [
+            {
+                "fieldName": "name1",
+                "fieldId": "123"
+            },
+            {
+                "fieldName": "name2",
+                "fieldId": "456"
+            }
+        ];
+        var map = createMapper();
+        map("fieldName");
+        map("fieldId");
+        // Act
+        var actual = sources.map(function (source) { return map.execute(source); });
+        // Assert
+        test.deepEqual(actual, expected);
+        return test.done();
+    },
     "Map a source field to a different object structure": function (test) {
         var expected = {
             "field": {

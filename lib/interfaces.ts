@@ -10,7 +10,6 @@ export interface IMapping {
   to(target: string, fnc?: Function);
 }
 
-
 export interface IKeyDefinition {
   key: string;
   transform: Function;
