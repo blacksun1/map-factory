@@ -1,4 +1,4 @@
-import * as nodeunit from "nodeunit";
+import * as nodeunit from "nodeunit"; // eslint-disable-line no-unused-vars
 const createMapper = require("../lib/index");
 
 const exampleGroup = {
@@ -8,7 +8,7 @@ const exampleGroup = {
     const expected = {
       "fieldName": "name1",
       "fieldId": "123"
-    }
+    };
 
     // Start example
 
@@ -90,7 +90,7 @@ const exampleGroup = {
             "id": 2,
             "name": "game-2"
           }
-         ]
+        ]
       }
     };
 
@@ -242,6 +242,6 @@ const exampleGroup = {
     test.deepEqual(result, expected);
     test.done();
   }
-}
+};
 
 exports.examples = exampleGroup;

@@ -20,7 +20,7 @@ export default class Mapping {
       this.target = {
         key: target,
         transform: fnc
-      }
+      };
 
       return;
     }

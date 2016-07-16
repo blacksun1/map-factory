@@ -1,4 +1,4 @@
-import * as nodeunit from "nodeunit";
+import * as nodeunit from "nodeunit"; // eslint-disable-line no-unused-vars
 import createMapper from "../lib/map-factory";
 
 const basicMappingGroup = {
@@ -26,19 +26,11 @@ const basicMappingGroup = {
 
   "Throws if no source is provided": function (test) {
 
-    const expected = {
-      "field": {
-        "name": "name1"
-      }
-    };
-
     const map = createMapper();
 
     map("fieldName").to("field.name");
 
-    test.throws(() => {
-      const actual = map.execute();
-    });
+    test.throws(() => map.execute());
 
     test.done();
   },
@@ -119,7 +111,7 @@ const basicMappingGroup = {
 
   "A field that doesn't exists on the source doesn't affect the resulting object": function (test) {
     const source = {
-      "fieldName": "name1",
+      "fieldName": "name1"
     };
 
     const expected = {
@@ -169,7 +161,7 @@ const basicMappingGroup = {
 
   "The source field is used if no target field is provided": function (test) {
     const source = {
-      "fieldName": "name1",
+      "fieldName": "name1"
     };
 
     const map = createMapper();
@@ -183,13 +175,13 @@ const basicMappingGroup = {
 
   }
 
-}
+};
 
 const customFunctionsGroup = {
 
   "Calls a function and alters the resulting object": function (test) {
     const source = {
-      "fieldName": "name1",
+      "fieldName": "name1"
     };
 
     const expected = {
@@ -200,7 +192,7 @@ const customFunctionsGroup = {
 
     const map = createMapper();
 
-    map("fieldName").to("field.name", value => "altered");
+    map("fieldName").to("field.name", () => "altered");
 
     const actual = map.execute(source);
 
@@ -208,7 +200,7 @@ const customFunctionsGroup = {
     test.done();
 
   }
-}
+};
 
 const multipleSelectionGroup = {
 
@@ -285,24 +277,16 @@ const multipleSelectionGroup = {
       }
     };
 
-    const expected = {
-      "name": "joe",
-      "merged": { "groups": ["A", "B"] }
-    };
-
     const map = createMapper();
 
     map("person.name").to("name");
     map(["group1", "group2"]).to("merged");
 
-    test.throws(() => {
-      const actual = map.execute(source);
-    });
+    test.throws(() => map.execute(source));
 
     test.done();
-
   }
-}
+};
 
 exports.basicMapping = basicMappingGroup;
 exports.customFunctions = customFunctionsGroup;

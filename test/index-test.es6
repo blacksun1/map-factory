@@ -1,4 +1,4 @@
-import * as nodeunit from "nodeunit";
+import * as nodeunit from "nodeunit";  // eslint-disable-line no-unused-vars
 const createMapper = require("../lib/index");
 
 const basicMappingGroup = {
@@ -23,7 +23,6 @@ const basicMappingGroup = {
     test.deepEqual(actual, expected);
     test.done();
   }
-
-}
+};
 
 exports.basicMapping = basicMappingGroup;
