@@ -1,4 +1,3 @@
-import * as nodeunit from "nodeunit";  // eslint-disable-line no-unused-vars
 const createMapper = require("../lib/index");
 
 const basicMappingGroup = {

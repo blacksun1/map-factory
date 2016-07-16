@@ -1,4 +1,3 @@
-import * as nodeunit from "nodeunit"; // eslint-disable-line no-unused-vars
 import createMapper from "../lib/map-factory";
 
 const basicMappingGroup = {
