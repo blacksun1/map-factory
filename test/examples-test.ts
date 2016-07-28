@@ -1,4 +1,5 @@
 import * as nodeunit from "nodeunit";
+import * as interfaces from "../lib/interfaces";
 // tslint:disable-next-line no-var-requires
 const createMapper = require("../lib/index");
 
@@ -397,6 +398,149 @@ const exampleGroup: nodeunit.ITestGroup = {
 
     test.deepEqual(result, expected);
     test.done();
+  },
+
+  "Class example": function (test: nodeunit.Test) {
+
+    interface IBlogRepos {
+      getPost(id: string): Promise<any>;
+    }
+
+    interface IUserRepos {
+      getUser(id: string): Promise<any>;
+    }
+
+    interface IBlogService {
+      getPost1(id: string): Promise<any>;
+      getPost2(id: string): Promise<any>;
+    }
+
+    class MockBlogRepos implements IBlogRepos {
+
+      public getPost(id: string): Promise<any> {
+
+        return new Promise(function(resolve) {
+
+          return resolve({
+            _id: id,
+            title: "My Blog Post",
+            body: "Bacon ipsum dolor amet salami",
+            authorId: "blacksun1"
+          });
+        });
+      }
+    }
+
+    class MockUserRepos implements IUserRepos {
+
+      public getUser(id: string): Promise<any> {
+
+        return new Promise(function(resolve) {
+
+          return resolve({
+            _id: id,
+            name: "Foobo Babbins",
+            email: "foobo@theshire.co.uk"
+          });
+        });
+      }
+    }
+
+    class BlogService implements IBlogService {
+
+      private _blogRepos: IBlogRepos;
+      private _userRepos: IUserRepos;
+      private _blogMapper: interfaces.IMapping;
+      private _authorMapper: interfaces.IMapping;
+      private _blogAuthorMapper: interfaces.IMapping;
+
+      constructor(blogRepos: IBlogRepos, userRepos: IUserRepos) {
+
+        this._blogRepos = blogRepos;
+        this._userRepos = userRepos;
+
+        // initialise mappers
+        this._blogMapper = createMapper()
+          .map("_id").to("blog.id")
+          .map("title").to("blog.title")
+          .map("body").to("blog.body");
+
+        this._authorMapper = createMapper()
+          .map("_id").to("blog.author.id")
+          .map("name").to("blog.author.name")
+          .map("email").to("blog.author.email");
+
+        this._blogAuthorMapper = createMapper()
+          .map("blog._id").to("blog.id")
+          .map("blog.title")
+          .map("blog.body")
+          .map("author._id").to("blog.author.id")
+          .map("author.name").to("blog.author.name")
+          .map("author.email").to("blog.author.email");
+      }
+
+      private decorateBlogPostWithAuthor(userId: string, post: any): Promise<any> {
+
+        return this._userRepos.getUser(userId)
+          .then(user => this._authorMapper.execute(user, post));
+      }
+
+      public getPost1(id) {
+
+        return this._blogRepos.getPost(id)
+          .then(post => {
+            const mappedPost = this._blogMapper.execute(post);
+            return this.decorateBlogPostWithAuthor(post.authorId, mappedPost);
+          });
+      }
+
+      public getPost2(id) {
+
+        const data: any = {};
+        return this._blogRepos.getPost(id)
+          .then(post => data.blog = post)
+          .then(post => this._userRepos.getUser(post.authorId))
+          .then(author => data.author = author)
+          .then(() => this._blogAuthorMapper.execute(data));
+      }
+    }
+
+    const blogRepos = new MockBlogRepos();
+    const userRepos = new MockUserRepos();
+    const sut = new BlogService(blogRepos, userRepos);
+
+    const testPostId = "foobar-1";
+
+    // Act
+    const actual = [
+      sut.getPost1(testPostId),
+      sut.getPost2(testPostId)
+    ];
+
+    // Assert
+    const assertion = post => {
+      test.deepEqual(post, {
+        blog: {
+          id: testPostId,
+          title: "My Blog Post",
+          body: "Bacon ipsum dolor amet salami",
+          author: {
+            id: "blacksun1",
+            name: "Foobo Babbins",
+            email: "foobo@theshire.co.uk"
+          }
+        }
+      });
+    };
+
+    return actual[0]
+      .then(assertion)
+      .then(() => actual[1])
+      .then(assertion)
+      .catch(error => {
+        throw error;
+      })
+      .then(() => test.done());
   }
 
 };

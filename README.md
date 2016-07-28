@@ -429,25 +429,69 @@ The above approach appears untidy when compared with combining the data into a s
 For example, a mapper used within a class may build its map in the constructor and execute the mapper in a method.
 
 ```js
-
 class BlogService {
 
   constructor(blogRepos) {
-    this.blogRepos = blogRepos;
+
+    this._blogRepos = blogRepos;
 
     // initialise mapper
-    this.authorMapper = createMapper();
-    this.authorMapper.map("id").to("blog.author.id");
-    this.authorMapper.map("name").to("blog.author.name");
-    this.authorMapper.map("email").to("blog.author.email");
-
+    this._authorMapper = createMapper()
+      .map("id").to("blog.author.id")
+      .map("name").to("blog.author.name")
+      .map("email").to("blog.author.email");
   }
 
-  // Here post is created somewhere else and we are extending it with user information
-  decorateBlogPostWithAuthor(userId, post) {
-    return this.blogRepos.getUser(userId)
-      .then(user => this.authorMapper.execute(user, post));
+  /**
+   * Take the blog post record and merge it with the blog post's author details.
+   * @param  {string} userId - The ID of the user to be retrieved and who's
+   * details will be merged with the post object.
+   * @param  {Object} post   - The blog post object to be decorated with the
+   * author's details. Note that the post object will be changed - a cloned
+   * record is not being returned.
+   * @return {Promise<Object>} - Resolves to the merged post artcle.
+   */
+  decorateBlogPostWithAuthor(post) {
+
+    return this._blogRepos.getUser(post.authorId)
+      .then(user => this._authorMapper.execute(user, post));
   }
 
 }
+```
+
+
+```js
+// Assuming Hapi style handler method.
+// Assuming `this` is decorated with blogServer (instance of BlogService) and
+// that the BlogService also has a method for returning a Post with an interface
+// of getPost(id).
+// Assuming that getPost returns something like
+//  {
+//    blog: {
+//      id: "my-id",
+//      title: "My Blog Post",
+//      body: "Bacon ipsum dolor amet salami"
+//      authorId: "blacksun1"
+//    }
+//  }
+export function GetPost(request, reply) {
+  const {blogServer} = this;
+
+  return blogServer.getPost(request.params.post)
+    .then(post => blogServer.decorateBlogPostWithAuthor(post.authorId, post)
+}
+
+// You would expect that this method would eventually resolve:
+//  {
+//    id: "my-id",
+//    title: "My Blog Post",
+//    body: "Bacon ipsum dolor amet salami"
+//    authorId: "blacksun1",
+//    author: {
+//      id: "blacksun1",
+//      name: "Simon Bruce",
+//      email: "simon@blacksun.cx"
+//    }
+//  }
 ```

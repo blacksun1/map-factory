@@ -7,6 +7,7 @@ export interface IMapData {
   transform: Object;
   multiMaps: Object[];
 }
+
 export interface IMapFactory {
   (stringOrArray: string | string[]): IMapping;
   map(stringOrArray: string | string[]): IMapping;
