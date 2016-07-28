@@ -47,6 +47,7 @@
     "object-mapper": "^3.0.1"
   },
   "devDependencies": {
+    "benchmark": "^2.1.1",
     "coveralls": "^2.11.9",
     "gently": "^0.10.0",
     "istanbul": "^0.4.4",
