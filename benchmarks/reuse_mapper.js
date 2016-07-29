@@ -1,9 +1,38 @@
-var Benchmark = require("benchmark");
-var Chalk = require("chalk");
-var createMapper = require("../dist/lib");
+"use strict";
+
+const Benchmark = require("benchmark");
+const Chalk = require("chalk");
+const createMapper = require("../dist/lib");
 
 
+// **********************************************
+// Re-usable listener handlers
+// **********************************************
+function suiteStart (event) {
+
+  console.log(Chalk.green(`Running ${this.name} benchmark`));
+}
+
+function suiteError (event) {
+
+  console.log(`An error happened in '${event.target.name}'`, event.target.error);
+}
+
+function suiteCycle (event) {
+
+  console.log(`${event.target}`);
+}
+
+function suiteComplete (event) {
+
+  console.log(`Suite ${this.name} is complete. Fastest benchmark was ${Chalk.green(this.filter("fastest").map("name"))}`);
+}
+
+
+// **********************************************
 // Arrange our artifacts up front.
+// **********************************************
+
 function mapperFactory() {
 
   return createMapper()
@@ -12,57 +41,38 @@ function mapperFactory() {
     .map("y");
 }
 
-var reUsableMapper = mapperFactory();
-var testObject = {
+let reUsableMapper = mapperFactory();
+let testObject = {
   a: "a",
   b: "b",
   y: "y"
-}
+};
 
-
-// Benchmark tests
-function nonReuse() {
-
-  var tempMapper = mapperFactory();
-  return tempMapper.execute(testObject);
-}
-
-function reuse() {
-
-  return reUsableMapper.execute(testObject);
-}
-
-
+// **********************************************
 // Create a suite with the tests
-var suite = (new Benchmark.Suite("non-async suite"))
-  .add("Non-Reuse", nonReuse)
-  .add("Reuse", reuse)
+// **********************************************
 
-// Add listeners
-suite.on("start", function(event) {
+(new Benchmark.Suite("mapper speed testing"))
+  .add("Non-Reuse", () => {
 
-  console.log(Chalk.green("Running non-async benchmark"));
-})
-suite.on("error", function(event) {
+    let tempMapper = mapperFactory();
+    return tempMapper.execute(testObject);
+  })
+  .add("Reuse", () => {
 
-  console.log("An error happened in '" + event.target.name + "'", event.target.error);
-})
-suite.on("cycle", function(event) {
+    return reUsableMapper.execute(testObject);
+  })
 
-  console.log(String(event.target));
-})
-suite.on("complete", function() {
+  // **********************************************
+  // Add listeners
+  // **********************************************
+  .on("start", suiteStart)
+  .on("error", suiteError)
+  .on("cycle", suiteCycle)
+  .on("complete", suiteComplete)
 
-  console.log("Fastest is " + this.filter("fastest").map("name"));
+  // **********************************************
+  // Run the benchmark
+  // **********************************************
+  .run();
 
-  // // Re-run the suite - over and over again.
-  // suite.reset();
-  // suite.run({
-  //   async: false
-  // })
-});
-
-// Run the benchmark
-suite.run({
-  async: false
-})
