@@ -1,32 +1,8 @@
 "use strict";
 
 const Benchmark = require("benchmark");
-const Chalk = require("chalk");
-const createMapper = require("../dist/lib");
-
-
-// **********************************************
-// Re-usable listener handlers
-// **********************************************
-function suiteStart (event) {
-
-  console.log(Chalk.green(`Running ${this.name} benchmark`));
-}
-
-function suiteError (event) {
-
-  console.log(`An error happened in '${event.target.name}'`, event.target.error);
-}
-
-function suiteCycle (event) {
-
-  console.log(`${event.target}`);
-}
-
-function suiteComplete (event) {
-
-  console.log(`Suite ${this.name} is complete. Fastest benchmark was ${Chalk.green(this.filter("fastest").map("name"))}`);
-}
+const CreateMapper = require("../dist/lib");
+const CommonBenchmarkHandlers = require("./common_benchmark_handlers");
 
 
 // **********************************************
@@ -35,18 +11,19 @@ function suiteComplete (event) {
 
 function mapperFactory() {
 
-  return createMapper()
+  return CreateMapper()
     .map("a").to("z.a")
     .map("b").to("z.b")
     .map("y");
 }
 
-let reUsableMapper = mapperFactory();
-let testObject = {
+const reUsableMapper = mapperFactory();
+const testObject = {
   a: "a",
   b: "b",
   y: "y"
 };
+
 
 // **********************************************
 // Create a suite with the tests
@@ -55,7 +32,7 @@ let testObject = {
 (new Benchmark.Suite("mapper speed testing"))
   .add("Non-Reuse", () => {
 
-    let tempMapper = mapperFactory();
+    const tempMapper = mapperFactory();
     return tempMapper.execute(testObject);
   })
   .add("Reuse", () => {
@@ -66,13 +43,12 @@ let testObject = {
   // **********************************************
   // Add listeners
   // **********************************************
-  .on("start", suiteStart)
-  .on("error", suiteError)
-  .on("cycle", suiteCycle)
-  .on("complete", suiteComplete)
+  .on("start", CommonBenchmarkHandlers.suiteStart)
+  .on("error", CommonBenchmarkHandlers.suiteError)
+  .on("cycle", CommonBenchmarkHandlers.suiteCycle)
+  .on("complete", CommonBenchmarkHandlers.suiteComplete)
 
   // **********************************************
   // Run the benchmark
   // **********************************************
   .run();
-
